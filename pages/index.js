@@ -1,24 +1,24 @@
 import { useState } from "react";
 import axios from "axios";
+import { Button, Container, Group, Select, Textarea, TextInput, Title } from "@mantine/core";
+import { useForm, zodResolver } from "@mantine/form"
+import { bodychecker } from "../libs/bodyChecker";
 
 export default function Lecture17() {
-  const [email, setEmail] = useState("");
-  const [pwd, setPwd] = useState("");
-  const [address, setAddress] = useState("");
-  const [gender, setGender] = useState("");
-  const [plan, setPlan] = useState("");
+  const form = useForm({
+    validate: zodResolver(bodychecker),
+    initialValues: {
+      email: "",
+      pwd: "",
+      address: "",
+      gender: "",
+      plan: "",
+    },
+  })
 
   async function submitForm() {
-    const body = {
-      email,
-      pwd,
-      address,
-      gender,
-      plan,
-    };
-
     try {
-      const resp = await axios.post("/api/register", body);
+      const resp = await axios.post("/api/register", form.values);
       if (resp.data.ok) alert("Register Successfully");
     } catch (err) {
       alert(err.response.data.message);
@@ -26,56 +26,49 @@ export default function Lecture17() {
   }
 
   return (
-    <div>
-      <p>CMU Marathon 2022</p>
+    <Container size="sm">
+      <form onSubmit={form.onSubmit(() => submitForm())}>
+        <div>
+          <Title order={3} align="center" color="blue">CMU Marathon 2022</Title>
 
-      <label>Email</label>
-      <br />
-      <input
-        placeholder="email"
-        onChange={(e) => setEmail(e.target.value)}
-        value={email}
-      />
-      <br />
-      <label>Password</label>
-      <br />
-      <input
-        placeholder="6 - 12 characters"
-        type="password"
-        onChange={(e) => setPwd(e.target.value)}
-        value={pwd}
-      ></input>
+          <Group grow>
+            <TextInput label="Email" placeholder="Please insert email"
+              {...form.getInputProps("email")}
+            />
+            <TextInput label="Password" placeholder="6 - 12 characters"
+              {...form.getInputProps("pwd")}
+            />
+          </Group>
 
-      <br />
-      <label>Address</label>
-      <br />
-      <textarea
-        rows="5"
-        onChange={(e) => setAddress(e.target.value)}
-        value={address}
-      />
-      <br />
+          <Textarea label="Address" rows="3" placeholder="address.."
+            {...form.getInputProps("address")}
+          />
 
-      <label>Gender</label>
-      <br />
-      <select onChange={(e) => setGender(e.target.value)} value={gender}>
-        <option value="">-</option>
-        <option value="male">Male (เพศชาย)</option>
-        <option value="female">Female (เพศหญิง)</option>
-      </select>
+          <Group grow>
+            <Select 
+              label="Gender" 
+              data={[
+                { value: "male", label: "Male (เพศชาย)" },
+                { value: "female", label: "Female (เพศหญิง)" },
+              ]}
+              placeholder="Please select..."
+              {...form.getInputProps("gender")}
+            />
+            <Select 
+              label="Plan" 
+              data={[
+                { value: "full", label: "Full Marathon (42.195 KM)" },
+                { value: "half", label: "Half Marathon (21.1 KM)" },
+                { value: "mini", label: "Mini Marathon (10.5 KM)" },
+              ]}
+              placeholder="Please select..."
+              {...form.getInputProps("plan")}
+            />
+          </Group>
 
-      <br />
-      <label>Plan</label>
-      <br />
-      <select onChange={(e) => setPlan(e.target.value)} value={plan}>
-        <option value="">-</option>
-        <option value="full">Full Marathon (42.195 KM)</option>
-        <option value="half">Half Marathon (21.1 KM)</option>
-        <option value="mini">Mini Marathon (10.5 KM)</option>
-      </select>
-
-      <br />
-      <button onClick={() => submitForm()}>Register</button>
-    </div>
-  );
+          <Button type="submit" mt="sm">Register</Button>
+        </div>
+      </form>
+    </Container>
+  )
 }
